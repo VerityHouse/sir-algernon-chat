@@ -11,8 +11,10 @@ export default async function handler(req, res) {
   }
 
   const assistantId = process.env.OPENAI_ASSISTANT_ID;
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-  console.log("Using Assistant ID:", assistantId);
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+console.log("Using Assistant ID:", assistantId);
+console.log("Using OpenAI API Key present:", !!OPENAI_API_KEY);
   try {
     // 1. Create a thread
     const threadRes = await fetch('https://api.openai.com/v1/threads', {
