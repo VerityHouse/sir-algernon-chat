@@ -108,15 +108,19 @@ export default async function handler(req, res) {
 
     const messages = await messagesRes.json();
 
-    const assistantMessage = messages.data
+    // Get the last assistant message and clean up citations
+const rawMessage = messages.data
   .reverse()
   .find(m => m.role === 'assistant')
-  ?.content?.[0]?.text?.value
-  ?.replace(/【\d+:\d+†source†】/g, '') // Remove [4:1†source] tags
-  ?.trim() || "Hmm, I couldn't find a proper response.";
+  ?.content?.[0]?.text?.value || "Hmm, I couldn't find a proper response.";
+
+// Clean up OpenAI-style citation tags like  
+const assistantMessage = rawMessage
+  .replace(/【\d+:\d+†.*?†】/g, '') // Remove OpenAI file references
+  .replace(/\s+/g, ' ')            // Normalize whitespace
+  .trim();
 
 res.status(200).json({ reply: assistantMessage });
-
   } catch (error) {
     console.error('🔥 Assistant error:', error);
     res.status(500).json({ error: error.message || 'Failed to get assistant reply.' });
