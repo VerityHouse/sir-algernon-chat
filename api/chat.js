@@ -108,13 +108,14 @@ export default async function handler(req, res) {
 
     const messages = await messagesRes.json();
 
-    const assistantMessage =
-      messages.data
-        .reverse()
-        .find(m => m.role === 'assistant')
-        ?.content?.[0]?.text?.value || "Hmm, I couldn't find a proper response.";
+    const assistantMessage = messages.data
+  .reverse()
+  .find(m => m.role === 'assistant')
+  ?.content?.[0]?.text?.value
+  ?.replace(/【\d+:\d+†source†】/g, '') // Remove [4:1†source] tags
+  ?.trim() || "Hmm, I couldn't find a proper response.";
 
-    res.status(200).json({ reply: assistantMessage });
+res.status(200).json({ reply: assistantMessage });
 
   } catch (error) {
     console.error('🔥 Assistant error:', error);
