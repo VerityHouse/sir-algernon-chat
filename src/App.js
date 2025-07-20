@@ -1,78 +1,82 @@
-import React, { useState } from 'react';
-import './App.css';
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Only POST requests allowed' });
+  }
 
-function App() {
-  const [messages, setMessages] = useState([
-    { sender: 'Sir Algernon', text: 'Ah, welcome to Verity House. What question troubles your tea today?' }
-  ]);
-  const [input, setInput] = useState('');
+  const { message } = req.body;
+  if (!message) {
+    return res.status(400).json({ error: 'No message provided' });
+  }
 
-  const handleSend = async () => {
-    if (input.trim() === '') return;
+  try {
+    const assistantId = 'asst_9hL75WshgZ3R1BJkAP1L58mT'; // ← REPLACE THIS
 
-    // Add user's message to the chat
-    const newMessage = { sender: 'You', text: input };
-    setMessages(prev => [...prev, newMessage]);
-    setInput('');
+    // 1. Create a new thread
+    const threadRes = await fetch('https://api.openai.com/v1/threads', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+    });
+    const thread = await threadRes.json();
 
-    try {
-      // Send input to your backend API route
-      const response = await fetch('/api/chat', {
-        method: 'POST',
+    // 2. Add user's message to the thread
+    await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        role: 'user',
+        content: message
+      }),
+    });
+
+    // 3. Run the assistant
+    const runRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        assistant_id: assistantId
+      }),
+    });
+
+    const run = await runRes.json();
+
+    // 4. Poll for completion
+    let runStatus = run.status;
+    let result;
+    while (runStatus === 'queued' || runStatus === 'in_progress') {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const statusCheck = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
         headers: {
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
         },
-        body: JSON.stringify({ message: input }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong with Sir Algernon\'s reply.');
-      }
-
-      // Add Sir A's response
-      const replyMessage = { sender: 'Sir Algernon', text: data.reply };
-      setMessages(prev => [...prev, replyMessage]);
-
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => [
-        ...prev,
-        { sender: 'Sir Algernon', text: 'Oh dear, something has gone awry with the thinking engine.' }
-      ]);
+      const statusData = await statusCheck.json();
+      runStatus = statusData.status;
     }
-  };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSend();
-    }
-  };
+    // 5. Get the messages
+    const messagesRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+    });
+    const messages = await messagesRes.json();
 
-  return (
-    <div className="App">
-      <img src="/sir-algernon.png" alt="Sir Algernon" style={{ height: '200px', margin: '20px auto' }} />
-      <h1>Sir Algernon</h1>
+    const assistantMessage = messages.data
+      .find(m => m.role === 'assistant')?.content?.[0]?.text?.value || "Hmm, I couldn't find a proper reply.";
 
-      <div className="chat-box">
-        {messages.map((msg, index) => (
-          <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
-        ))}
-      </div>
+    res.status(200).json({ reply: assistantMessage });
 
-      <div className="input-box">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask Sir Algernon a question..."
-        />
-        <button onClick={handleSend}>Send</button>
-      </div>
-    </div>
-  );
+  } catch (error) {
+    console.error('Assistant error:', error);
+    res.status(500).json({ error: 'Failed to get assistant reply.' });
+  }
 }
-
-export default App;
