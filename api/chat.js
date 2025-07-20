@@ -13,8 +13,8 @@ export default async function handler(req, res) {
   const assistantId = process.env.OPENAI_ASSISTANT_ID;
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-  console.log("🧠 Assistant ID:", assistantId);
-  console.log("🔑 OpenAI API Key present:", !!OPENAI_API_KEY);
+  console.log('🐰 Assistant ID:', assistantId);
+  console.log('🔑 OpenAI API key present:', !!OPENAI_API_KEY);
 
   try {
     // Step 1: Create a thread
@@ -23,6 +23,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'OpenAI-Beta': 'assistants=v2',
       },
     });
 
@@ -40,6 +41,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'OpenAI-Beta': 'assistants=v2',
       },
       body: JSON.stringify({
         role: 'user',
@@ -53,6 +55,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'OpenAI-Beta': 'assistants=v2',
       },
       body: JSON.stringify({
         assistant_id: assistantId,
@@ -67,46 +70,54 @@ export default async function handler(req, res) {
 
     const run = await runRes.json();
 
-    // Step 4: Poll for completion
+    // Step 4: Wait for completion
     let runStatus = run.status;
     while (runStatus === 'queued' || runStatus === 'in_progress') {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
+      await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 sec
 
-      const statusRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        },
-      });
+      const statusRes = await fetch(
+        `https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'OpenAI-Beta': 'assistants=v2',
+          },
+        }
+      );
 
       const statusData = await statusRes.json();
       runStatus = statusData.status;
+      console.log('⏳ Run status:', runStatus);
 
-      console.log("⏳ Run status:", runStatus);
-    }
-
-    if (runStatus === 'failed') {
-      console.error('❌ Assistant run failed');
-      throw new Error('Assistant run failed');
+      if (runStatus === 'failed') {
+        console.error('❌ Assistant run failed');
+        throw new Error('Assistant run failed');
+      }
     }
 
     // Step 5: Get the assistant’s reply
-    const messagesRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-    });
+    const messagesRes = await fetch(
+      `https://api.openai.com/v1/threads/${thread.id}/messages`,
+      {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'assistants=v2',
+        },
+      }
+    );
 
     const messages = await messagesRes.json();
 
-    const assistantMessage = messages.data
-      .reverse()
-      .find(m => m.role === 'assistant')
-      ?.content?.[0]?.text?.value || "Hmm, I couldn’t find a proper response.";
+    const assistantMessage =
+      messages.data
+        .reverse()
+        .find(m => m.role === 'assistant')
+        ?.content?.[0]?.text?.value || "Hmm, I couldn't find a proper response.";
 
     res.status(200).json({ reply: assistantMessage });
 
   } catch (error) {
-    console.error('💥 Assistant error:', error);
+    console.error('🔥 Assistant error:', error);
     res.status(500).json({ error: error.message || 'Failed to get assistant reply.' });
   }
 }
