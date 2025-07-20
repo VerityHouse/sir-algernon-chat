@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
@@ -6,52 +6,48 @@ function App() {
     { sender: 'Sir Algernon', text: 'Ah, welcome to Verity House. What question troubles your tea today?' }
   ]);
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [threadId, setThreadId] = useState(null);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
 
+    // Add user's message to the chat
     const newMessage = { sender: 'You', text: input };
     setMessages(prev => [...prev, newMessage]);
     setInput('');
-    setLoading(true);
 
     try {
+      // Send input to your backend API route
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input, thread_id: threadId })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        throw new Error('Invalid JSON returned from server.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong with Sir Algernon\'s reply.');
       }
 
-      if (!response.ok || !data.reply) {
-        throw new Error(data.error || 'Something went wrong.');
-      }
+      // Add Sir A's response
+      const replyMessage = { sender: 'Sir Algernon', text: data.reply };
+      setMessages(prev => [...prev, replyMessage]);
 
-      setMessages(prev => [...prev, { sender: 'Sir Algernon', text: data.reply }]);
-      if (data.thread_id && !threadId) {
-        setThreadId(data.thread_id);
-      }
     } catch (error) {
-      console.error('Frontend error:', error);
-      setMessages(prev => [...prev, {
-        sender: 'Sir Algernon',
-        text: 'Oh dear, something has gone awry with the thinking engine.'
-      }]);
-    } finally {
-      setLoading(false);
+      console.error('Chat error:', error);
+      setMessages(prev => [
+        ...prev,
+        { sender: 'Sir Algernon', text: 'Oh dear, something has gone awry with the thinking engine.' }
+      ]);
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSend();
+    if (e.key === 'Enter') {
+      handleSend();
+    }
   };
 
   return (
@@ -63,7 +59,6 @@ function App() {
         {messages.map((msg, index) => (
           <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
         ))}
-        {loading && <p><strong>Sir Algernon:</strong> ...brewing thoughts 🍵</p>}
       </div>
 
       <div className="input-box">
