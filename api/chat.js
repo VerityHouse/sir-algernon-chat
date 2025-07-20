@@ -1,4 +1,5 @@
 // /api/chat.js
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Only POST requests allowed' });
@@ -11,7 +12,7 @@ export default async function handler(req, res) {
 
   const assistantId = process.env.OPENAI_ASSISTANT_ID;
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
+  console.log("Using Assistant ID:", assistantId);
   try {
     // 1. Create a thread
     const threadRes = await fetch('https://api.openai.com/v1/threads', {
