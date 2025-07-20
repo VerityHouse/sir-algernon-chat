@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [threadId, setThreadId] = useState(null);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
@@ -20,7 +21,7 @@ function App() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: input, thread_id: threadId })
       });
 
       let data;
@@ -30,19 +31,20 @@ function App() {
         throw new Error('Invalid JSON returned from server.');
       }
 
-      if (!response.ok || !data?.reply) {
-        throw new Error(data?.error || 'Something went wrong.');
+      if (!response.ok || !data.reply) {
+        throw new Error(data.error || 'Something went wrong.');
       }
 
-      const replyMessage = { sender: 'Sir Algernon', text: data.reply };
-      setMessages(prev => [...prev, replyMessage]);
-
+      setMessages(prev => [...prev, { sender: 'Sir Algernon', text: data.reply }]);
+      if (data.thread_id && !threadId) {
+        setThreadId(data.thread_id);
+      }
     } catch (error) {
       console.error('Frontend error:', error);
-      setMessages(prev => [
-        ...prev,
-        { sender: 'Sir Algernon', text: 'Oh dear, something has gone awry with the thinking engine.' }
-      ]);
+      setMessages(prev => [...prev, {
+        sender: 'Sir Algernon',
+        text: 'Oh dear, something has gone awry with the thinking engine.'
+      }]);
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ function App() {
         {messages.map((msg, index) => (
           <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
         ))}
-        {loading && <p><strong>Sir Algernon:</strong> ...brewing thoughts 🫖</p>}
+        {loading && <p><strong>Sir Algernon:</strong> ...brewing thoughts 🍵</p>}
       </div>
 
       <div className="input-box">
