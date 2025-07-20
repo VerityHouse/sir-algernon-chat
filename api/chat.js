@@ -4,40 +4,104 @@ export default async function handler(req, res) {
   }
 
   const { message } = req.body;
-
   if (!message) {
     return res.status(400).json({ error: 'No message provided' });
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
+    const assistantId = 'asst_9hL75WshgZR3IBJkAPLl58mT'; // Your real assistant ID
+
+    // 1. Create a new thread
+    const threadRes = await fetch('https://api.openai.com/v1/threads', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+    });
+
+    if (!threadRes.ok) {
+      throw new Error('Failed to create thread');
+    }
+
+    const thread = await threadRes.json();
+
+    // 2. Add user's message to the thread
+    const messageRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are Sir Algernon Thistledown, a kindly and clever rabbit mentor who helps users think clearly and delight in learning." },
-          { role: "user", content: message }
-        ],
-        temperature: 0.7,
+        role: 'user',
+        content: message,
       }),
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data });
+    if (!messageRes.ok) {
+      throw new Error('Failed to add message to thread');
     }
 
-    const reply = data.choices?.[0]?.message?.content || "Hmm, I seem to have misplaced my thoughts.";
+    // 3. Run the assistant
+    const runRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        assistant_id: assistantId,
+      }),
+    });
 
-    res.status(200).json({ reply });
+    if (!runRes.ok) {
+      throw new Error('Failed to start assistant run');
+    }
+
+    const run = await runRes.json();
+
+    // 4. Poll until assistant completes
+    let runStatus = run.status;
+    let runData = null;
+
+    while (runStatus === 'queued' || runStatus === 'in_progress') {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const statusCheck = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+      });
+
+      if (!statusCheck.ok) {
+        throw new Error("Failed to check run status from OpenAI.");
+      }
+
+      runData = await statusCheck.json();
+      runStatus = runData?.status || 'failed';
+    }
+
+    // 5. Get the assistant's response
+    const messagesRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+    });
+
+    if (!messagesRes.ok) {
+      throw new Error('Failed to retrieve assistant messages');
+    }
+
+    const messages = await messagesRes.json();
+
+    const assistantMessage = messages.data.find(m => m.role === 'assistant')?.content?.[0]?.text?.value 
+      || "Hmm, I couldn't find a proper reply.";
+
+    return res.status(200).json({ reply: assistantMessage });
 
   } catch (error) {
-    console.error("API Error:", error);
-    res.status(500).json({ error: "Failed to connect to OpenAI." });
+    console.error('Assistant error:', error);
+    return res.status(500).json({ error: 'Failed to get assistant reply.' });
   }
 }
