@@ -11,12 +11,13 @@ export default async function handler(req, res) {
   }
 
   const assistantId = process.env.OPENAI_ASSISTANT_ID;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-console.log("Using Assistant ID:", assistantId);
-console.log("Using OpenAI API Key present:", !!OPENAI_API_KEY);
+  console.log("🧠 Assistant ID:", assistantId);
+  console.log("🔑 OpenAI API Key present:", !!OPENAI_API_KEY);
+
   try {
-    // 1. Create a thread
+    // Step 1: Create a thread
     const threadRes = await fetch('https://api.openai.com/v1/threads', {
       method: 'POST',
       headers: {
@@ -26,12 +27,14 @@ console.log("Using OpenAI API Key present:", !!OPENAI_API_KEY);
     });
 
     if (!threadRes.ok) {
+      const errText = await threadRes.text();
+      console.error('❌ Failed to create thread:', errText);
       throw new Error('Failed to create thread');
     }
 
     const thread = await threadRes.json();
 
-    // 2. Add user message to the thread
+    // Step 2: Add user message to the thread
     await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
       method: 'POST',
       headers: {
@@ -44,7 +47,7 @@ console.log("Using OpenAI API Key present:", !!OPENAI_API_KEY);
       }),
     });
 
-    // 3. Run the assistant
+    // Step 3: Run the assistant
     const runRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
       method: 'POST',
       headers: {
@@ -57,31 +60,36 @@ console.log("Using OpenAI API Key present:", !!OPENAI_API_KEY);
     });
 
     if (!runRes.ok) {
+      const errText = await runRes.text();
+      console.error('❌ Failed to start assistant run:', errText);
       throw new Error('Failed to start assistant run');
     }
 
     const run = await runRes.json();
 
-    // 4. Poll until run is complete
+    // Step 4: Poll for completion
     let runStatus = run.status;
     while (runStatus === 'queued' || runStatus === 'in_progress') {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second
 
-      const statusCheck = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
+      const statusRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
         headers: {
           'Authorization': `Bearer ${OPENAI_API_KEY}`,
         },
       });
 
-      const statusData = await statusCheck.json();
+      const statusData = await statusRes.json();
       runStatus = statusData.status;
 
-      if (runStatus === 'failed') {
-        throw new Error('Assistant run failed');
-      }
+      console.log("⏳ Run status:", runStatus);
     }
 
-    // 5. Get the assistant's reply
+    if (runStatus === 'failed') {
+      console.error('❌ Assistant run failed');
+      throw new Error('Assistant run failed');
+    }
+
+    // Step 5: Get the assistant’s reply
     const messagesRes = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -96,8 +104,9 @@ console.log("Using OpenAI API Key present:", !!OPENAI_API_KEY);
       ?.content?.[0]?.text?.value || "Hmm, I couldn’t find a proper response.";
 
     res.status(200).json({ reply: assistantMessage });
+
   } catch (error) {
-    console.error('Assistant error:', error);
-    res.status(500).json({ error: 'Failed to get assistant reply.' });
+    console.error('💥 Assistant error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get assistant reply.' });
   }
 }
