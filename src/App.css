@@ -1,110 +1,12 @@
-#sir-algernon-chat {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-#sir-algernon-chat.visible {
-  opacity: 1;
-}
-.App {
-  max-width: 600px;
-  margin: 0 auto;
+/* General styles */
+body {
+  margin: 0;
+  padding: 0;
   font-family: 'Georgia', serif;
-  padding: 20px;
-  position: relative;
+  background: #fffefc;
 }
 
-.chat-header {
-  position: sticky;
-  top: 0;
-  background: white;
-  padding: 10px 0;
-  text-align: center;
-  z-index: 10;
-  border-bottom: 2px solid #ddd;
-}
-
-.sir-img {
-  display: none;
-}
-
-.chat-box {
-  background: #fdf6e3;
-  border: 1px solid #ddd;
-  height: 300px;
-  overflow-y: auto;
-  margin: 20px 0;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: left;
-}
-
-.input-box {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-input[type="text"] {
-  padding: 10px;
-  width: 70%;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-button {
-  padding: 10px 20px;
-  border-radius: 5px;
-  background-color: #6c4e09;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #523a06;
-}
-#sir-algernon-chat {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-#sir-algernon-chat.visible {
-  opacity: 1;
-}
-.typing-indicator {
-  font-style: italic;
-  opacity: 0.75;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: Georgia, serif;
-}
-
-.typing-indicator .dots span {
-  animation: blink 1.5s infinite;
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.typing-indicator .dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.typing-indicator .dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes blink {
-  0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-.typing-indicator span[role="img"] {
-  font-size: 22px;
-}
-/* Float the entire widget */
+/* Floating Chat Widget Container */
 .chat-widget-container {
   position: fixed;
   bottom: 2rem;
@@ -114,37 +16,28 @@ button:hover {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  background: #fff9ec;
+  background: transparent;
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: none;
 }
 
-/* App wrapper inside */
+/* Hide Sir A image unless toggled */
+.sir-img {
+  display: none;
+}
+
+/* Inner container */
 .App {
   display: flex;
   flex-direction: column;
   height: 100%;
-  font-family: Georgia, serif;
   font-size: 16px;
   color: #2f2f2f;
+  background: transparent;
 }
 
-/* Chat header */
-.chat-header {
-  background: #f2e6d9;
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #ddd2bd;
-}
-
-.chat-header h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-/* Chat content */
+/* Chat Wrapper */
 .chat-wrapper {
   flex-grow: 1;
   display: flex;
@@ -153,22 +46,33 @@ button:hover {
   overflow-y: auto;
 }
 
-/* Chat box */
+/* Chat Box */
 .chat-box {
   flex-grow: 1;
   overflow-y: auto;
   padding-bottom: 0.5rem;
+  background: transparent;
+  border: none;
 }
 
-/* Typing indicator */
+/* Message styling */
+.chat-box p {
+  margin: 0.25rem 0;
+}
+
+/* Typing Indicator */
 .typing-indicator {
   margin-top: 0.5rem;
   font-style: italic;
+  opacity: 0.75;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: Georgia, serif;
   color: #666;
 }
 
-/* Teapot dots */
-.dots span {
+.typing-indicator .dots span {
   display: inline-block;
   width: 6px;
   height: 6px;
@@ -178,17 +82,30 @@ button:hover {
   animation: blink 1.2s infinite ease-in-out;
 }
 
-@keyframes blink {
-  0%, 80%, 100% { opacity: 0; }
-  40% { opacity: 1; }
+.typing-indicator .dots span:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-/* Input section */
+.typing-indicator .dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.typing-indicator span[role="img"] {
+  font-size: 22px;
+}
+
+/* Input Box */
 .input-box {
   display: flex;
   border-top: 1px solid #ddd2bd;
   padding: 10px;
-  background: #fef6e5;
+  background: transparent;
 }
 
 .input-box input {
@@ -197,6 +114,7 @@ button:hover {
   font-size: 15px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background: #fffefc;
 }
 
 .input-box button {
@@ -214,7 +132,17 @@ button:hover {
   background-color: #4d351f;
 }
 
-/* Mobile-friendly */
+/* Transition for toggle */
+#sir-algernon-chat {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#sir-algernon-chat.visible {
+  opacity: 1;
+}
+
+/* Mobile Friendly */
 @media (max-width: 480px) {
   .chat-widget-container {
     width: 90%;
