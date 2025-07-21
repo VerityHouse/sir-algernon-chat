@@ -107,7 +107,7 @@ function App() {
 
           {isTyping && (
             <div className="message assistant typing-indicator">
-              <span role="img" aria-label="teapot">🫖❤️</span> Sir A is brewing a reply
+              <span role="img" aria-label="teapot">🫖</span> Sir A is brewing a reply
               <div className="dots">
                 <span></span><span></span><span></span>
               </div>
