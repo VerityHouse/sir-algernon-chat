@@ -68,32 +68,33 @@ const [hasGreeted, setHasGreeted] = useState(false);
   <div className="App">
     <div className="chat-header">
       <img src="/sir-algernon.png" alt="Sir Algernon" className="sir-img" />
-      
       <h1>Sir Algernon</h1>
     </div>
 
     {chatOpen && (
-  <div className="chat-box">
-    {messages.map((msg, index) => (
-      <p key={index}>
-        <strong>{msg.sender}:</strong> {msg.text}
-      </p>
-    ))}
-  </div>
-)}
+      <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
+        <img src="/sir-algernon.png" alt="Sir Algernon" className="sir-img" />
 
-    <div className="input-box">
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Ask Sir Algernon a question..."
-      />
-      <button onClick={handleSend}>Send</button>
-    </div>
-  </div>
-);
-}
+        <div className="chat-box">
+          {messages.map((msg, index) => (
+            <p key={index}>
+              <strong>{msg.sender}:</strong> {msg.text}
+            </p>
+          ))}
 
-export default App;
+          <div className="input-box">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Sir Algernon a question..."
+            />
+            <button onClick={handleSend}>Send</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+  </div> // ← this is the missing closing tag!
+);}
