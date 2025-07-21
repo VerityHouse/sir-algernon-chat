@@ -73,3 +73,34 @@ button:hover {
 #sir-algernon-chat.visible {
   opacity: 1;
 }
+.typing-indicator {
+  font-style: italic;
+  opacity: 0.75;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: Georgia, serif;
+}
+
+.typing-indicator .dots span {
+  animation: blink 1.5s infinite;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.typing-indicator .dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-indicator .dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.typing-indicator span[role="img"] {
+  font-size: 22px;
+}

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-function App() {
+function App() {}
   const [messages, setMessages] = useState([]);
 const [chatOpen, setChatOpen] = useState(false);
 const [hasGreeted, setHasGreeted] = useState(false);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   useEffect(() => {
   const greetTimer = setTimeout(() => {
     setChatOpen(true);
@@ -21,43 +22,77 @@ const [hasGreeted, setHasGreeted] = useState(false);
   return () => clearTimeout(greetTimer);
 }, []);
 
-  const handleSend = async () => {
-    if (input.trim() === '') return;
+ if (!input.trim()) return;
 
-    // Add user's message to the chat
-    const newMessage = { sender: 'You', text: input };
-    setMessages(prev => [...prev, newMessage]);
-    setInput('');
+  const userMessage = input.trim();
 
-    try {
-      // Send input to your backend API route
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: input }),
-      });
+  setMessages(prev => [...prev, { sender: 'You', text: userMessage }]);
+  setInput('');
+  setIsTyping(true); // 🫖 Show the teapot
 
-      const data = await response.json();
+  try {
+    const response = await fetch('/api/chat-stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage }),
+    });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong with Sir Algernon\'s reply.');
-      }
+    const reader = response.body.getReader(); 
+    const decoder = new TextDecoder();
+    let fullMessage = '';
 
-      // Add Sir A's response
-      const replyMessage = { sender: 'Sir Algernon', text: data.reply };
-      setMessages(prev => [...prev, replyMessage]);
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => [
-        ...prev,
-        { sender: 'Sir Algernon', text: 'Oh dear, something has gone awry with the thinking engine.' }
-      ]);
+      const chunk = decoder.decode(value, { stream: true });
+      fullMessage += chunk;
     }
-  };
 
+    setMessages(prev => [...prev, { sender: 'Sir Algernon', text: fullMessage }]);
+  } catch (error) {
+    console.error('🫖 Chat error:', error);
+    setMessages(prev => [
+      ...prev,
+      {
+        sender: 'Sir Algernon',
+        text: 'Oh dear, something went wrong while I was steeping my thoughts.',
+      }
+    ]);
+  } finally {
+  try {
+  const response = await fetch('/api/chat-stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: userMessage }),
+  });
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullMessage = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    fullMessage += chunk;
+  }
+
+  setMessages(prev => [...prev, { sender: 'Sir Algernon', text: fullMessage }]);
+} catch (error) {
+  console.error('🫖 Chat error:', error);
+  setMessages(prev => [
+    ...prev,
+    {
+      sender: 'Sir Algernon',
+      text: 'Oh dear, something went wrong while I was steeping my thoughts.',
+    }
+  ]);
+} finally {
+  setIsTyping(false); // 🔚 Hide the teapot
+}
+  
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSend();
@@ -70,7 +105,7 @@ const [hasGreeted, setHasGreeted] = useState(false);
       <img src="/sir-algernon.png" alt="Sir Algernon" className="sir-img" />
       <h1>Sir Algernon</h1>
     </div>
-
+     
     {chatOpen && (
       <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
         <img src="/sir-algernon.png" alt="Sir Algernon" className="sir-img" />
@@ -81,7 +116,16 @@ const [hasGreeted, setHasGreeted] = useState(false);
               <strong>{msg.sender}:</strong> {msg.text}
             </p>
           ))}
-
+{isTyping && (
+  <div className="message assistant typing-indicator">
+    <span role="img" aria-label="teapot">🫖</span> Sir A is brewing a reply
+    <span className="dots">
+      <span>.</span>
+      <span>.</span>
+      <span>.</span>
+    </span>
+  </div>
+)}
           <div className="input-box">
             <input
               type="text"
@@ -95,7 +139,9 @@ const [hasGreeted, setHasGreeted] = useState(false);
         </div>
       </div>
     )}
+);
 
   </div> // ← this is the missing closing tag!
-);}
+);
+  }//
 export default App;
