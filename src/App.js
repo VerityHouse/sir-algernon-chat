@@ -4,27 +4,25 @@ import './App.css';
 function App() {
   const [messages, setMessages] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
-  const [hasGreeted, setHasGreeted] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-
+  
 useEffect(() => {
-  function handleGreetingMessage(event) {
-    if (event.data?.type === 'init-greeting') {
-      const initialGreeting = {
+  const hasGreeted = localStorage.getItem('hasChattedWithSirA');
+
+  const initialGreeting = hasGreeted
+    ? {
         sender: 'Sir Algernon',
-        text: event.data.message
+        text: 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?',
+      }
+    : {
+        sender: 'Sir Algernon',
+        text: `Ah, a guest at the gate! Welcome to Verity House, where wonder brews. I am Sir Algernon Thistledown, at your service—a rabbit of modest stature yet boundless curiosity. Picture, if you will, a waistcoat that whispers of adventure and a monocle that twinkles with tales. I am your guide through these storied halls of insight, creativity, and timeless learning.\n\nAnd should you wish me to vanish for a spell—or return again—simply click upon my image below. It’s a rather dapper way to come and go, wouldn’t you agree?`,
       };
-      setMessages([initialGreeting]);
-      setChatOpen(true);
-    }
-  }
 
-  window.addEventListener('message', handleGreetingMessage);
-
-  return () => {
-    window.removeEventListener('message', handleGreetingMessage);
-  };
+  setMessages([initialGreeting]);
+  setChatOpen(true);
+  localStorage.setItem('hasChattedWithSirA', 'true');
 }, []);
 
   const handleSend = async () => {
@@ -87,27 +85,27 @@ useEffect(() => {
       handleSend();
     }
   };
-
+return (
   <div className="chat-widget-container">
-    {chatOpen && (
-      <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
-        <img src="sir-algneron.png" alt="Sir Algernon" className="sir-img" />
-        <div className="chat-box">
-          {messages.map((msg, index) => (
-            <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
-          ))}
-        </div>
+    <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
+      <img src="sir-algernon.png" alt="Sir Algernon" className="sir-img" />
+      <div className="chat-box">
+        {messages.map((msg, index) => (
+          <p key={index}>
+            <strong>{msg.sender}:</strong> {msg.text}
+          </p>
+        ))}
 
-          {isTyping && (
-            <div className="message assistant typing-indicator">
-              <span role="img" aria-label="teapot">🍵</span> Sir A is brewing a reply
-              <span className="dots">
-                <span></span><span></span><span></span><span></span><span></span>
-              </span>
-            </div>
-          )}
+        {isTyping && (
+          <div className="message assistant typing-indicator">
+            <span role="img" aria-label="teapot">🫖</span> Sir A is brewing a reply
+            <span className="dots">
+              <span></span><span></span><span></span>
+            </span>
+          </div>
+        )}
 
-          <div className="input-box">
+        <div className="input-box">
           <input
             type="text"
             value={input}
@@ -118,7 +116,8 @@ useEffect(() => {
           <button onClick={handleSend}>Send</button>
         </div>
       </div>
-    )}
+    </div>
   </div>
+);
 }
 export default App;
