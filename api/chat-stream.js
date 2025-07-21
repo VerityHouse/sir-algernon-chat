@@ -1,68 +1,46 @@
 // pages/api/chat-stream.js
-import OpenAI from 'openai';
-
-
+import { OpenAI } from 'openai';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-export default async function handler(req) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Only POST requests allowed' }), {
-      status: 405,
+export default async function handler(req, res) {
+  try {
+    // ✅ Stream-safe way to read the body in Vercel
+    const buffers = [];
+    for await (const chunk of req.body) {
+      buffers.push(chunk);
+    }
+    const body = JSON.parse(Buffer.concat(buffers).toString());
+
+    const userMessage = body.message;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'You are Sir Algernon, a scholarly rabbit mentor from Verity House. Reply with wit, warmth, and classical elegance.' },
+        { role: 'user', content: userMessage }
+      ],
+      stream: true
     });
-  }
 
-  const { message } = await req.json();
-  if (!message) {
-    return new Response(JSON.stringify({ error: 'No message provided' }), {
-      status: 400,
-    });
-  }
-
-  const assistantId = process.env.OPENAI_ASSISTANT_ID;
-  const encoder = new TextEncoder();
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        // 1. Create a new thread
-        const thread = await openai.beta.threads.create();
-
-        // 2. Send user message to the thread
-        await openai.beta.threads.messages.create(thread.id, {
-          role: 'user',
-          content: message,
-        });
-
-        // 3. Start a run using streaming
-        const response = await openai.beta.threads.runs.create(thread.id, {
-          assistant_id: assistantId,
-          stream: true,
-        });
-
-        // 4. Stream the assistant's response back
-        for await (const chunk of response) {
-          const content = chunk?.data?.content?.[0]?.text?.value;
-          if (content) {
-            controller.enqueue(encoder.encode(content));
-          }
-        }
-
-        controller.close();
-      } catch (error) {
-        console.error('🔥 Streaming error:', error);
-        controller.enqueue(encoder.encode('[Sir A encountered an error.]'));
-        controller.close();
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-    },
-  });
+      Connection: 'keep-alive'
+    });
+
+    for await (const chunk of completion) {
+      const content = chunk.choices?.[0]?.delta?.content || '';
+      if (content) {
+        res.write(content);
+      }
+    }
+
+    res.end();
+  } catch (error) {
+    console.error('Server Error:', error);
+    res.status(500).json({ error: 'Failed to generate response' });
+  }
 }
