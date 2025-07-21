@@ -2,10 +2,24 @@ import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  const [messages, setMessages] = useState([
-    { sender: 'Sir Algernon', text: 'Ah, welcome to Verity House. What question troubles your tea today?' }
-  ]);
+  const [messages, setMessages] = useState([]);
+const [chatOpen, setChatOpen] = useState(false);
+const [hasGreeted, setHasGreeted] = useState(false);
   const [input, setInput] = useState('');
+  useEffect(() => {
+  const greetTimer = setTimeout(() => {
+    setChatOpen(true);
+    if (!hasGreeted) {
+      setMessages(prev => [
+        ...prev,
+        { sender: 'Sir Algernon', text: 'Ah, a guest at the gate! Welcome to Verity House, where wonder awaits. How may I be of service?' }
+      ]);
+      setHasGreeted(true);
+    }
+  }, 2000); // Delay in milliseconds before greeting
+
+  return () => clearTimeout(greetTimer);
+}, []);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
