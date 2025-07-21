@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/chat-stream.js": {
-      "includeFiles": ["node_modules/openai/**"],
+      "includeFiles": "node_modules/openai/**",
       "memory": 512
     }
   }
