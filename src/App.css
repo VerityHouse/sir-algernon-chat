@@ -1,3 +1,11 @@
+#sir-algernon-chat {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#sir-algernon-chat.visible {
+  opacity: 1;
+}
 .App {
   max-width: 600px;
   margin: 0 auto;
