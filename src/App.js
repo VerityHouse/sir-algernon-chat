@@ -54,7 +54,7 @@ function App() {
   <div className="App">
     <div className="chat-header">
       <img src="/sir-algernon.png" alt="Sir Algernon" className="sir-img" />
-      /
+      
       <h1>Sir Algernon</h1>
     </div>
 
