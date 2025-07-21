@@ -1,9 +1,7 @@
 // pages/api/chat-stream.js
 import OpenAI from 'openai';
 
-export const config = {
-  runtime: 'edge', // Required for streaming on Vercel
-};
+
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
