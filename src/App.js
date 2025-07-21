@@ -72,13 +72,15 @@ const [hasGreeted, setHasGreeted] = useState(false);
       <h1>Sir Algernon</h1>
     </div>
 
-    <div className="chat-box">
-      {messages.map((msg, index) => (
-        <p key={index}>
-          <strong>{msg.sender}:</strong> {msg.text}
-        </p>
-      ))}
-    </div>
+    {chatOpen && (
+  <div className="chat-box">
+    {messages.map((msg, index) => (
+      <p key={index}>
+        <strong>{msg.sender}:</strong> {msg.text}
+      </p>
+    ))}
+  </div>
+)}
 
     <div className="input-box">
       <input
