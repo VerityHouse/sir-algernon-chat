@@ -116,8 +116,8 @@ const rawMessage = messages.data
 
 // Clean up OpenAI-style citation tags like  
 const assistantMessage = rawMessage
-  .replace(/【\d+:\d+†.*?†】/g, '') // Remove OpenAI file references
-  .replace(/\s+/g, ' ')            // Normalize whitespace
+  .replace(/【[^】]+】/g, '') // Remove everything inside 【...】
+  .replace(/\s+/g, ' ')      // Normalize whitespace
   .trim();
 
 res.status(200).json({ reply: assistantMessage });
