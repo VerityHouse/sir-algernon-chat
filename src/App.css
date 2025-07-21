@@ -1,4 +1,4 @@
-/* General styles */
+/* === General Styles === */
 body {
   margin: 0;
   padding: 0;
@@ -6,28 +6,24 @@ body {
   background: #fffefc;
 }
 
-/* Floating Chat Widget Container */
+/* === Chat Widget Floating Position === */
 .chat-widget-container {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  width: 360px;
+  width: auto;
+  max-width: 400px;
   max-height: 90vh;
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  background: transparent; /* ✅ transparent instead of white */
-  box-shadow: none;         /* ✅ no shadow */
-  border-radius: 0;         /* ✅ no rounding */
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
   overflow: visible;
 }
 
-/* Hide Sir A image unless toggled */
-.sir-img {
-  display: none;
-}
-
-/* Inner container */
+/* === App Inner Container (no white box) === */
 .App {
   display: flex;
   flex-direction: column;
@@ -37,7 +33,12 @@ body {
   background: transparent;
 }
 
-/* Chat Wrapper */
+/* === Hide Sir A's image unless toggled === */
+.sir-img {
+  display: none;
+}
+
+/* === Chat Wrapper === */
 .chat-wrapper {
   flex-grow: 1;
   display: flex;
@@ -46,9 +47,9 @@ body {
   overflow-y: auto;
 }
 
-/* Chat Box */
-chat-box {
-  background: #fdf6e3;
+/* === Chat Message Box === */
+.chat-box {
+  background: #fff6e3; /* light cream color */
   border: 1px solid #ddd;
   height: 300px;
   overflow-y: auto;
@@ -58,12 +59,12 @@ chat-box {
   text-align: left;
 }
 
-/* Message styling */
+/* === Message Text Styling === */
 .chat-box p {
   margin: 0.25rem 0;
 }
 
-/* Typing Indicator */
+/* === Typing Indicator === */
 .typing-indicator {
   margin-top: 0.5rem;
   font-style: italic;
@@ -85,13 +86,8 @@ chat-box {
   animation: blink 1.2s infinite ease-in-out;
 }
 
-.typing-indicator .dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-indicator .dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.typing-indicator .dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator .dots span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes blink {
   0%, 20% { opacity: 0; }
@@ -103,7 +99,7 @@ chat-box {
   font-size: 22px;
 }
 
-/* Input Box */
+/* === Input Area === */
 .input-box {
   display: flex;
   border-top: 1px solid #ddd2bd;
@@ -135,7 +131,7 @@ chat-box {
   background-color: #4d351f;
 }
 
-/* Transition for toggle */
+/* === Chat Toggle Animation === */
 #sir-algernon-chat {
   opacity: 0;
   transition: opacity 0.5s ease;
@@ -145,7 +141,7 @@ chat-box {
   opacity: 1;
 }
 
-/* Mobile Friendly */
+/* === Mobile Friendly === */
 @media (max-width: 480px) {
   .chat-widget-container {
     width: 90%;
