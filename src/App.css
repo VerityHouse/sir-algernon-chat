@@ -104,3 +104,121 @@ button:hover {
 .typing-indicator span[role="img"] {
   font-size: 22px;
 }
+/* Float the entire widget */
+.chat-widget-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 360px;
+  max-height: 90vh;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: #fff9ec;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* App wrapper inside */
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: #2f2f2f;
+}
+
+/* Chat header */
+.chat-header {
+  background: #f2e6d9;
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd2bd;
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Chat content */
+.chat-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+/* Chat box */
+.chat-box {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 0.5rem;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #666;
+}
+
+/* Teapot dots */
+.dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px;
+  background-color: #a58a4c;
+  border-radius: 50%;
+  animation: blink 1.2s infinite ease-in-out;
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
+}
+
+/* Input section */
+.input-box {
+  display: flex;
+  border-top: 1px solid #ddd2bd;
+  padding: 10px;
+  background: #fef6e5;
+}
+
+.input-box input {
+  flex-grow: 1;
+  padding: 8px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.input-box button {
+  margin-left: 8px;
+  padding: 8px 14px;
+  font-size: 15px;
+  background-color: #6a4e2e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.input-box button:hover {
+  background-color: #4d351f;
+}
+
+/* Mobile-friendly */
+@media (max-width: 480px) {
+  .chat-widget-container {
+    width: 90%;
+    right: 5%;
+    bottom: 1rem;
+  }
+}
