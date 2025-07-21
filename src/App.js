@@ -88,15 +88,11 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <div className="chat-header">
-        <img src="sir-algernon.png" alt="Sir Algernon" className="sir-img" />
-        <h1>Sir Algernon</h1>
-      </div>
-
+  <div className="chat-widget-container">
+  
       {chatOpen && (
         <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
-          <img src="sir-algernon.png" alt="Sir Algernon" className="sir-img" />
+          <img src="sir-algneron.png" alt="Sir Algernon" className="sir-img" />
           <div className="chat-box">
             {messages.map((msg, index) => (
               <p key={index}>
@@ -108,9 +104,9 @@ function App() {
           {isTyping && (
             <div className="message assistant typing-indicator">
               <span role="img" aria-label="teapot">🫖</span> Sir A is brewing a reply
-              <div className="dots">
+              <span className="dots">
                 <span></span><span></span><span></span>
-              </div>
+              </span>
             </div>
           )}
 
@@ -127,7 +123,7 @@ function App() {
         </div>
       )}
     </div>
-  );
+  </div>
+);
 }
-
 export default App;
