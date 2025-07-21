@@ -16,10 +16,10 @@ body {
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  background: transparent;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: none;
+  background: transparent; /* ✅ transparent instead of white */
+  box-shadow: none;         /* ✅ no shadow */
+  border-radius: 0;         /* ✅ no rounding */
+  overflow: visible;
 }
 
 /* Hide Sir A image unless toggled */
@@ -47,12 +47,15 @@ body {
 }
 
 /* Chat Box */
-.chat-box {
-  flex-grow: 1;
+chat-box {
+  background: #fdf6e3;
+  border: 1px solid #ddd;
+  height: 300px;
   overflow-y: auto;
-  padding-bottom: 0.5rem;
-  background: transparent;
-  border: none;
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: left;
 }
 
 /* Message styling */
