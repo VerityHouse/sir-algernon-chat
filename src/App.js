@@ -98,3 +98,4 @@ const [hasGreeted, setHasGreeted] = useState(false);
 
   </div> // ← this is the missing closing tag!
 );}
+export default App;
