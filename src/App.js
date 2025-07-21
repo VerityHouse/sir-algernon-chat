@@ -8,12 +8,12 @@ function App() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
- useEffect(() => {
+useEffect(() => {
   function handleGreetingMessage(event) {
-    if (event.data.type === 'init-greeting') {
+    if (event.data?.type === 'init-greeting') {
       const initialGreeting = {
         sender: 'Sir Algernon',
-        text: event.data.message,
+        text: event.data.message
       };
       setMessages([initialGreeting]);
       setChatOpen(true);
@@ -21,6 +21,7 @@ function App() {
   }
 
   window.addEventListener('message', handleGreetingMessage);
+
   return () => {
     window.removeEventListener('message', handleGreetingMessage);
   };
