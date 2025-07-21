@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/chat-stream.js": {
+      "includeFiles": [],
+      "memory": 512
+    }
+  }
+}
