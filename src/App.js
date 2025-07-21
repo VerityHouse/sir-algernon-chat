@@ -8,23 +8,23 @@ function App() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  useEffect(() => {
-    const greetTimer = setTimeout(() => {
+ useEffect(() => {
+  function handleGreetingMessage(event) {
+    if (event.data.type === 'init-greeting') {
+      const initialGreeting = {
+        sender: 'Sir Algernon',
+        text: event.data.message,
+      };
+      setMessages([initialGreeting]);
       setChatOpen(true);
-      if (!hasGreeted) {
-        setMessages(prev => [
-          ...prev,
-          {
-            sender: 'Sir Algernon',
-            text: 'Ah, a guest at the gate! Welcome to Verity House, where wonder brews.',
-          }
-        ]);
-        setHasGreeted(true);
-      }
-    }, 2000);
+    }
+  }
 
-    return () => clearTimeout(greetTimer);
-  }, [hasGreeted]);
+  window.addEventListener('message', handleGreetingMessage);
+  return () => {
+    window.removeEventListener('message', handleGreetingMessage);
+  };
+}, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -87,19 +87,15 @@ function App() {
     }
   };
 
-  return (
-  <>
-    <div className="chat-widget-container">
-      {chatOpen && (
-        <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
-          <img src="sir-algernon.png" alt="Sir Algernon" className="sir-img" />
-          <div className="chat-box">
-            {messages.map((msg, index) => (
-              <p key={index}>
-                <strong>{msg.sender}:</strong> {msg.text}
-              </p>
-            ))}
-          </div>
+  <div className="chat-widget-container">
+    {chatOpen && (
+      <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
+        <img src="sir-algneron.png" alt="Sir Algernon" className="sir-img" />
+        <div className="chat-box">
+          {messages.map((msg, index) => (
+            <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
+          ))}
+        </div>
 
           {isTyping && (
             <div className="message assistant typing-indicator">
@@ -111,19 +107,17 @@ function App() {
           )}
 
           <div className="input-box">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Sir Algernon a question..."
-            />
-            <button onClick={handleSend}>Send</button>
-          </div>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Sir Algernon a question..."
+          />
+          <button onClick={handleSend}>Send</button>
         </div>
-      )}
-    </div>
-  </>
-);
+      </div>
+    )}
+  </div>
 }
 export default App;
