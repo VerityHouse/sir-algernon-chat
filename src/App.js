@@ -23,7 +23,7 @@ function App() {
       }
     }, 2000);
 
-    return () => clearTimeout(greetTimer); // ✅ cleanup function
+    return () => clearTimeout(greetTimer);
   }, [hasGreeted]);
 
   const handleSend = async () => {
@@ -32,7 +32,7 @@ function App() {
     const userMessage = input.trim();
     setMessages(prev => [...prev, { sender: 'You', text: userMessage }]);
     setInput('');
-    setIsTyping(true); // 🫖 Show the teapot animation
+    setIsTyping(true);
 
     try {
       const response = await fetch('/api/chat-stream', {
@@ -50,15 +50,23 @@ function App() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         const chunk = decoder.decode(value, { stream: true });
         fullMessage += chunk;
-
-        setMessages(prev => [
-          ...prev,
-          { sender: 'Sir Algernon', text: fullMessage }
-        ]);
       }
+
+      // Attempt to parse JSON (in case it's wrapped in { "reply": "..." })
+      let replyText = fullMessage;
+      try {
+        const parsed = JSON.parse(fullMessage);
+        replyText = parsed.reply || fullMessage;
+      } catch (e) {
+        // Not JSON — leave it raw
+      }
+
+      setMessages(prev => [
+        ...prev,
+        { sender: 'Sir Algernon', text: replyText },
+      ]);
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [
@@ -66,10 +74,10 @@ function App() {
         {
           sender: 'Sir Algernon',
           text: 'Oh dear, something went wrong while I was steeping my thoughts.',
-        }
+        },
       ]);
     } finally {
-      setIsTyping(false); // 🫖 Hide the teapot animation
+      setIsTyping(false);
     }
   };
 
@@ -89,7 +97,6 @@ function App() {
       {chatOpen && (
         <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
           <img src="sir-algernon.png" alt="Sir Algernon" className="sir-img" />
-
           <div className="chat-box">
             {messages.map((msg, index) => (
               <p key={index}>
@@ -100,12 +107,10 @@ function App() {
 
           {isTyping && (
             <div className="message assistant typing-indicator">
-              <span role="img" aria-label="teapot">🫖</span> Sir A is brewing a reply
-              <span className="dots">
-                <span></span>
-                <span></span>
-                <span></span>
-              </span>
+              <span role="img" aria-label="teapot">🫖❤️</span> Sir A is brewing a reply
+              <div className="dots">
+                <span></span><span></span><span></span>
+              </div>
             </div>
           )}
 
