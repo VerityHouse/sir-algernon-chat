@@ -50,29 +50,37 @@ function App() {
     }
   };
 
-  return (
-    <div className="App">
-      <img src="/sir-algernon.png" alt="Sir Algernon" style={{ height: '200px', margin: '20px auto' }} />
+ return (
+  <div className="App">
+    <div className="chat-header">
+      <img
+        src="/sir-algneron.png"
+        alt="Sir Algernon"
+        className="sir-img"
+      />
       <h1>Sir Algernon</h1>
-
-      <div className="chat-box">
-        {messages.map((msg, index) => (
-          <p key={index}><strong>{msg.sender}:</strong> {msg.text}</p>
-        ))}
-      </div>
-
-      <div className="input-box">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask Sir Algernon a question..."
-        />
-        <button onClick={handleSend}>Send</button>
-      </div>
     </div>
-  );
+
+    <div className="chat-box">
+      {messages.map((msg, index) => (
+        <p key={index}>
+          <strong>{msg.sender}:</strong> {msg.text}
+        </p>
+      ))}
+    </div>
+
+    <div className="input-box">
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Ask Sir Algernon a question..."
+      />
+      <button onClick={handleSend}>Send</button>
+    </div>
+  </div>
+);
 }
 
 export default App;

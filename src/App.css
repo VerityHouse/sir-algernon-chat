@@ -1,18 +1,33 @@
 .App {
   max-width: 600px;
   margin: 0 auto;
-  text-align: center;
   font-family: 'Georgia', serif;
   padding: 20px;
+  position: relative;
+}
+
+.chat-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 10px 0;
+  text-align: center;
+  z-index: 10;
+  border-bottom: 2px solid #ddd;
+}
+
+.sir-img {
+  height: 200px;
+  margin: 0 auto;
 }
 
 .chat-box {
   background: #fdf6e3;
   border: 1px solid #ddd;
-  padding: 20px;
   height: 300px;
   overflow-y: auto;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  padding: 20px;
   border-radius: 10px;
   text-align: left;
 }
