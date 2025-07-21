@@ -53,11 +53,8 @@ function App() {
  return (
   <div className="App">
     <div className="chat-header">
-      <img
-        src="/sir-algneron.png"
-        alt="Sir Algernon"
-        className="sir-img"
-      />
+      <img src="/sir-algernon.png" alt="Sir Algernon" className="sir-img" />
+      /
       <h1>Sir Algernon</h1>
     </div>
 
