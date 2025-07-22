@@ -6,6 +6,7 @@ function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [animatedMessage, setAnimatedMessage] = useState('');
   const chatEndRef = useRef(null);
   const scrollToBottom = () => {
   if (chatEndRef.current) {
@@ -15,23 +16,39 @@ function App() {
 useEffect(() => {
   scrollToBottom();
 }, [messages]);
+const typeMessage = (fullText, callback) => {
+  let index = 0;
+  setAnimatedMessage(''); // start fresh
+
+  const type = () => {
+    if (index < fullText.length) {
+      setAnimatedMessage((prev) => prev + fullText.charAt(index));
+      index++;
+      setTimeout(type, 30); // Adjust speed here (lower = faster)
+    } else if (callback) {
+      callback();
+    }
+  };
+
+  type();
+};
 
 // First-time greeting logic
 useEffect(() => {
   const hasGreeted = localStorage.getItem('hasChattedwithSirA');
 
   const initialGreeting = hasGreeted
-    ? {
-        sender: 'Sir Algernon',
-        text: 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?'
-      }
-    : {
-        sender: 'Sir Algernon',
-        text: 'Ah, a guest at the gate! Welcome to Verity House, where wonder brews...'
-      };
+    ? 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?'
+    : 'Ah, a guest at the gate! Welcome to Verity House, where wonder brews...';
 
-  setMessages([initialGreeting]);
+  setIsTyping(true);
   setChatOpen(true);
+
+  typeMessage(initialGreeting, () => {
+    setMessages([{ sender: 'Sir Algernon', text: initialGreeting }]);
+    setIsTyping(false);
+  });
+
   localStorage.setItem('hasChattedwithSirA', 'true');
 }, []);
 
@@ -100,11 +117,14 @@ return (
     <div className={`chat-wrapper ${chatOpen ? 'visible' : ''}`}>
       <img src="sir-algernon.png" alt="Sir Algernon" className="sir-img" />
       <div className="chat-box">
-        {messages.map((msg, index) => (
-          <p key={index}>
-            <strong>{msg.sender}:</strong> {msg.text}
-          </p>
-        ))}
+       {messages.map((msg, index) => (
+  <div key={index} className="message">
+    <strong>{msg.sender}:</strong>{' '}
+    {msg.sender === 'Sir Algernon' && index === messages.length - 1 && isTyping
+      ? animatedMessage
+      : msg.text}
+  </div>
+))}
          <div ref={chatEndRef} />
         {isTyping && (
           <div className="message assistant typing-indicator">
