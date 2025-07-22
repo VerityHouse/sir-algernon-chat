@@ -13,24 +13,26 @@ function App() {
   }
 };
 useEffect(() => {
-  useEffect(() => {
   scrollToBottom();
 }, [messages]);
-  const hasGreeted = localStorage.getItem('hasChattedWithSirA');
+
+// First-time greeting logic
+useEffect(() => {
+  const hasGreeted = localStorage.getItem('hasChattedwithSirA');
 
   const initialGreeting = hasGreeted
     ? {
         sender: 'Sir Algernon',
-        text: 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?',
+        text: 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?'
       }
     : {
         sender: 'Sir Algernon',
-        text: `Ah, a guest at the gate! Welcome to Verity House, where wonder brews. I am Sir Algernon Thistledown, at your service—a rabbit of modest stature yet boundless curiosity. Picture, if you will, a waistcoat that whispers of adventure and a monocle that twinkles with tales. I am your guide through these storied halls of insight, creativity, and timeless learning.\n\nAnd should you wish me to vanish for a spell—or return again—simply click upon my image below. It’s a rather dapper way to come and go, wouldn’t you agree?`,
+        text: 'Ah, a guest at the gate! Welcome to Verity House, where wonder brews...'
       };
 
   setMessages([initialGreeting]);
   setChatOpen(true);
-  localStorage.setItem('hasChattedWithSirA', 'true');
+  localStorage.setItem('hasChattedwithSirA', 'true');
 }, []);
 
   const handleSend = async () => {
