@@ -24,7 +24,7 @@ const typeMessage = (fullText, callback) => {
     if (index < fullText.length) {
       setAnimatedMessage((prev) => prev + fullText.charAt(index));
       index++;
-      setTimeout(type, 150); // Adjust speed here (lower = faster)
+      setTimeout(type, 30); // Adjust speed here (lower = faster)
     } else if (callback) {
       callback();
     }
