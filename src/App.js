@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 function App() {
@@ -6,8 +6,16 @@ function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  
+  const chatEndRef = useRef(null);
+  const scrollToBottom = () => {
+  if (chatEndRef.current) {
+    chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }
+};
 useEffect(() => {
+  useEffect(() => {
+  scrollToBottom();
+}, [messages]);
   const hasGreeted = localStorage.getItem('hasChattedWithSirA');
 
   const initialGreeting = hasGreeted
@@ -95,7 +103,7 @@ return (
             <strong>{msg.sender}:</strong> {msg.text}
           </p>
         ))}
-
+         <div ref={chatEndRef} />
         {isTyping && (
           <div className="message assistant typing-indicator">
             <span role="img" aria-label="teapot">🫖</span> Sir A is brewing a reply

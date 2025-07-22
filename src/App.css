@@ -149,3 +149,8 @@ body {
     bottom: 1rem;
   }
 }
+.chat-box {
+  max-height: 500px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
