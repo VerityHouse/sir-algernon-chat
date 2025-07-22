@@ -38,8 +38,13 @@ useEffect(() => {
   const hasGreeted = localStorage.getItem('hasChattedwithSirA');
 
   const initialGreeting = hasGreeted
-    ? 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?'
-    : 'Ah, a guest at the gate! Welcome to Verity House, where wonder brews...';
+  ? 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?'
+  : `Sir Algernon Thistledown, at your service…
+Ah! A guest at the gate!
+Welcome to Verity House, where wonder brews and curiosity is the key to every locked door.
+I am Sir Algernon Thistledown—rabbit of elegant stature, impeccable taste, and unrelenting curiosity. Picture, if you will, a waistcoat stitched with secrets, a magnifying glass smudged with stories, and a pocket watch that, I must confess, is never properly wound—for time here does not behave quite as it does elsewhere.
+In these storied halls, you’ll encounter riddles wrapped in history, clues tucked into forgotten corners, and truths that prefer a good chase. I shall be your humble guide through it all—should you dare the journey.
+And if ever you wish me to take my leave—or return in a flash—simply click upon my image below. A tidy trick, wouldn’t you agree?`;
 
   setIsTyping(true);
   setChatOpen(true);
