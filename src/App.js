@@ -35,25 +35,22 @@ const typeMessage = (fullText, callback) => {
 
 // First-time greeting logic
 useEffect(() => {
-  const hasGreeted = localStorage.getItem('hasChattedwithSirA');
+  const handleInitGreeting = (event) => {
+    if (event.data?.type === 'init-greeting' && typeof event.data.message === 'string') {
+      const greetingMessage = event.data.message;
 
-  const initialGreeting = hasGreeted
-  ? 'Ah! A familiar face. Welcome back, dear friend. What curiosity brings you today?'
-  : `Ah! A guest at the gate!
-Welcome to Verity House, where wonder brews and curiosity is the key to every locked door.
-I am Sir Algernon Thistledown—rabbit of elegant stature, impeccable taste, and unrelenting curiosity. Picture, if you will, a waistcoat stitched with secrets, a magnifying glass smudged with stories, and a pocket watch that, I must confess, is never properly wound—for time here does not behave quite as it does elsewhere.
-In these storied halls, you’ll encounter riddles wrapped in history, clues tucked into forgotten corners, and truths that prefer a good chase. I shall be your humble guide through it all—should you dare the journey.
-And if ever you wish me to take my leave—or return in a flash—simply click upon my image below. A tidy trick, wouldn’t you agree?`;
+      setMessages([{ sender: 'Sir Algernon', text: greetingMessage }]);
+      setChatOpen(true);
+      setIsTyping(false);
+      localStorage.setItem('hasChattedWithSirA', 'true');
+    }
+  };
 
-  setIsTyping(true);
-  setChatOpen(true);
+  window.addEventListener('message', handleInitGreeting);
 
-  typeMessage(initialGreeting, () => {
-    setMessages([{ sender: 'Sir Algernon', text: initialGreeting }]);
-    setIsTyping(false);
-  });
-
-  localStorage.setItem('hasChattedwithSirA', 'true');
+  return () => {
+    window.removeEventListener('message', handleInitGreeting);
+  };
 }, []);
 
   const handleSend = async () => {
